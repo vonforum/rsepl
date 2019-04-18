@@ -1,0 +1,19 @@
+[package]
+name = "rsepl"
+description = "A slow rust REPL"
+repository = "https://github.com/vonforum/rsepl"
+version = "0.1.0"
+authors = ["vonforum <vonforum@windowslive.com>"]
+edition = "2018"
+license = "MIT OR Apache-2.0"
+keywords = ["repl"]
+categories = ["development-tools"]
+
+[dependencies]
+dirs = "1.0.5"
+rustyline = "3.0.0"
+shellfn = "0.1.1"
+
+[[bin]]
+name = "rspl"
+path = "src/main.rs"

@@ -1,24 +1,26 @@
 extern crate clap;
 extern crate dirs;
 extern crate rustyline;
-extern crate shellfn;
 
 use clap::{App, Arg};
 
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
 
-use shellfn::shell;
 use std::error::Error;
 use std::fs;
+use std::io;
 use std::path::PathBuf;
+use std::process::{Command, exit, Output};
 
-#[shell]
-fn build_file(dir: &str) -> Result<String, Box<Error>> {
-    r"
-    cd $DIR
-    cargo run -q -- --cap-lints allow
-"
+#[cfg(target_family="windows")]
+fn build_file(dir: &str) -> Result<Output, io::Error> {
+    Command::new("cmd").current_dir(dir).arg("/C").arg("cargo run -q -- --cap-lints allow").output()
+}
+
+#[cfg(target_family="unix")]
+fn build_file(dir: &str) -> Result<Output, io::Error> {
+    Command::new("sh").current_dir(dir).arg("-c").arg("cargo run -q -- --cap-lints allow").output()
 }
 
 fn main() -> Result<(), Box<Error>> {
@@ -121,10 +123,15 @@ fn main() {{
 
                     match build_file(dir.to_str().unwrap()) {
                         Ok(out) => {
-                            println!("{}", out);
+                            if out.status.success() {
+                                println!("{}", String::from_utf8(out.stdout).unwrap());
+                            } else {
+                                buffer.pop();
+                            }
                         }
                         Err(_) => {
-                            buffer.pop();
+                            eprintln!("Couldn't execute process");
+                            exit(1);
                         }
                     }
                 }

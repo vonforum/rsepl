@@ -6,10 +6,10 @@ makes it much slower but future-proof.
 
 ## Prerequisites, installation and usage
 
-RsEPL requires:
-
-* cargo to be installed and available in PATH
-* user data directory to be writable (AppData\Roaming in Windows, $HOME/.local/share or $XDG_DATA_Home on Linux etc)
+RsEPL requires cargo to be installed and available in PATH. It tries running in a default
+data directory. If it's not available, writable or you just want to use a different one,
+you can specify a directory with `-d`. **Note that RsEPL will overwrite any `src/main.rs` and
+`Cargo.toml` files in that directory.**
 
 Install with cargo:
 

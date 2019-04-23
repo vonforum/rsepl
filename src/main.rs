@@ -1,6 +1,9 @@
+extern crate clap;
 extern crate dirs;
 extern crate rustyline;
 extern crate shellfn;
+
+use clap::{App, Arg};
 
 use rustyline::error::ReadlineError;
 use rustyline::Editor;
@@ -8,6 +11,7 @@ use rustyline::Editor;
 use shellfn::shell;
 use std::error::Error;
 use std::fs;
+use std::path::PathBuf;
 
 #[shell]
 fn build_file(dir: &str) -> Result<String, Box<Error>> {
@@ -18,8 +22,32 @@ fn build_file(dir: &str) -> Result<String, Box<Error>> {
 }
 
 fn main() -> Result<(), Box<Error>> {
-    let mut dir = dirs::data_dir().unwrap().join("rsepl").join("src");
+    let matches = App::new("RsEPL")
+        .version("0.2.0")
+        .author("vonforum <vonforum@windowslive.com>")
+        .about("Rust REPL")
+        .arg(
+            Arg::with_name("directory")
+                .short("d")
+                .value_name("DIRECTORY")
+                .help("Run REPL in this directory")
+                .takes_value(true),
+        )
+        .get_matches();
+
+    let mut dir = (match matches.value_of("directory") {
+        Some(dir) => PathBuf::from(dir),
+        None => dirs::data_dir()
+            .expect(
+                r"No default data directory on this platform.
+Rerun with -d <directory>",
+            )
+            .join("rsepl"),
+    })
+    .join("src");
+
     fs::create_dir_all(dir.as_path())?;
+
     dir.pop();
     fs::write(
         &dir.join("Cargo.toml"),
